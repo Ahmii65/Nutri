@@ -1,3 +1,6 @@
+import CalorieSummaryCard from "@/components/CalorieSummaryCard";
+import MealSection from "@/components/MealSection";
+import { FOOD_CALORIE_DATA } from "@/constants/data";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
@@ -17,19 +20,6 @@ import {
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 import { MealLogEntry, MealLogState } from "../types";
-
-const FOOD_CALORIE_DATA = [
-  { name: "Apple", calories: 95, icon: "nutrition" },
-  { name: "Banana", calories: 105, icon: "nutrition" },
-  { name: "Boiled Egg", calories: 78, icon: "egg" },
-  { name: "Omelette", calories: 250, icon: "egg" },
-  { name: "Grilled Chicken", calories: 450, icon: "restaurant" },
-  { name: "Rice", calories: 200, icon: "leaf" },
-  { name: "Chapati", calories: 120, icon: "leaf" },
-  { name: "Burger", calories: 295, icon: "fast-food" },
-  { name: "Pizza Slice", calories: 285, icon: "pizza" },
-  { name: "Salad", calories: 150, icon: "leaf" },
-];
 
 const MealLogScreen = () => {
   const router = useRouter();
@@ -149,49 +139,6 @@ const MealLogScreen = () => {
   };
 
   const totalCalories = getTotalCalories();
-  const progress = Math.min(totalCalories / dailyGoal, 1);
-
-  const renderMealSection = (title: keyof MealLogState, iconName: string) => (
-    <View style={styles.sectionContainer}>
-      <View style={styles.sectionHeaderRow}>
-        <View style={styles.sectionTitleContainer}>
-          <LinearGradient
-            colors={["#e0c3fc", "#8ec5fc"]}
-            style={styles.iconBackground}
-          >
-            <Ionicons
-              name={iconName as any}
-              size={moderateScale(18)}
-              color="#fff"
-            />
-          </LinearGradient>
-          <Text style={styles.sectionTitle}>{title}</Text>
-        </View>
-        <TouchableOpacity onPress={() => openAddMealModal(title)}>
-          <Ionicons
-            name="add-circle"
-            size={moderateScale(28)}
-            color="#4facfe"
-          />
-        </TouchableOpacity>
-      </View>
-
-      {meals[title].length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No food logged</Text>
-        </View>
-      ) : (
-        meals[title].map((meal: MealLogEntry, index: number) => (
-          <View key={index} style={styles.mealCard}>
-            <View style={styles.mealInfo}>
-              <Text style={styles.mealName}>{meal.name}</Text>
-              <Text style={styles.caloriesText}>{meal.calories} kcal</Text>
-            </View>
-          </View>
-        ))
-      )}
-    </View>
-  );
 
   return (
     <View style={styles.container}>
@@ -225,45 +172,37 @@ const MealLogScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Summary Card */}
-        <LinearGradient
-          colors={["#ffffff", "#f8fbff"]}
-          style={styles.summaryCard}
-        >
-          <View style={styles.summaryRow}>
-            <View>
-              <Text style={styles.summaryLabel}>Calories Eaten</Text>
-              <Text style={styles.summaryValue}>
-                {totalCalories} <Text style={styles.summaryUnit}>kcal</Text>
-              </Text>
-            </View>
-            <View style={{ alignItems: "flex-end" }}>
-              <Text style={styles.summaryLabel}>
-                Daily Goal <Text style={styles.goalLabel}>({goalLabel})</Text>
-              </Text>
-              <Text style={styles.summaryValueLight}>
-                {dailyGoal} <Text style={styles.summaryUnit}>kcal</Text>
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.progressBarContainer}>
-            <LinearGradient
-              colors={["#43e97b", "#38f9d7"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[styles.progressBarFill, { width: `${progress * 100}%` }]}
-            />
-          </View>
-          <Text style={styles.progressText}>
-            {Math.round(progress * 100)}% of daily goal
-          </Text>
-        </LinearGradient>
+        <CalorieSummaryCard
+          totalCalories={totalCalories}
+          dailyGoal={dailyGoal}
+          goalLabel={goalLabel}
+        />
 
         {/* Meal Sections */}
-        {renderMealSection("Breakfast", "sunny")}
-        {renderMealSection("Lunch", "restaurant")}
-        {renderMealSection("Dinner", "moon")}
-        {renderMealSection("Snacks", "cafe")}
+        <MealSection
+          title="Breakfast"
+          iconName="sunny"
+          meals={meals.Breakfast}
+          onAddPress={() => openAddMealModal("Breakfast")}
+        />
+        <MealSection
+          title="Lunch"
+          iconName="restaurant"
+          meals={meals.Lunch}
+          onAddPress={() => openAddMealModal("Lunch")}
+        />
+        <MealSection
+          title="Dinner"
+          iconName="moon"
+          meals={meals.Dinner}
+          onAddPress={() => openAddMealModal("Dinner")}
+        />
+        <MealSection
+          title="Snacks"
+          iconName="cafe"
+          meals={meals.Snacks}
+          onAddPress={() => openAddMealModal("Snacks")}
+        />
 
         <View style={{ height: verticalScale(50) }} />
       </ScrollView>
@@ -387,127 +326,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: scale(20),
   },
-  summaryCard: {
-    borderRadius: moderateScale(15),
-    padding: moderateScale(20),
-    marginBottom: verticalScale(20),
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-  },
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: verticalScale(15),
-  },
-  summaryLabel: {
-    fontSize: moderateScale(12),
-    color: "#888",
-    marginBottom: verticalScale(4),
-  },
-  goalLabel: {
-    fontSize: moderateScale(10),
-    color: "#4facfe",
-    fontWeight: "bold",
-  },
-  summaryValue: {
-    fontSize: moderateScale(22),
-    fontWeight: "bold",
-    color: "#2d3436",
-  },
-  summaryValueLight: {
-    fontSize: moderateScale(22),
-    fontWeight: "600",
-    color: "#b2bec3",
-    textAlign: "right",
-  },
-  summaryUnit: {
-    fontSize: moderateScale(14),
-    fontWeight: "normal",
-    color: "#888",
-  },
-  progressBarContainer: {
-    height: verticalScale(10),
-    backgroundColor: "#f1f2f6",
-    borderRadius: moderateScale(5),
-    overflow: "hidden",
-    marginBottom: verticalScale(8),
-  },
-  progressBarFill: {
-    height: "100%",
-    borderRadius: moderateScale(5),
-  },
-  progressText: {
-    fontSize: moderateScale(11),
-    color: "#aaa",
-    textAlign: "center",
-  },
-  sectionContainer: {
-    marginBottom: verticalScale(20),
-  },
-  sectionHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: verticalScale(10),
-  },
-  sectionTitleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconBackground: {
-    width: moderateScale(30),
-    height: moderateScale(30),
-    borderRadius: moderateScale(8),
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: scale(10),
-  },
-  sectionTitle: {
-    fontSize: moderateScale(16),
-    fontWeight: "bold",
-    color: "#2d3436",
-  },
-  emptyState: {
-    backgroundColor: "#fff",
-    borderRadius: moderateScale(12),
-    padding: moderateScale(15),
-    justifyContent: "center",
-    alignItems: "center",
-    borderStyle: "dashed",
-    borderWidth: 1,
-    borderColor: "#dfe6e9",
-  },
-  emptyText: {
-    color: "#b2bec3",
-    fontSize: moderateScale(12),
-  },
-  mealCard: {
-    backgroundColor: "#fff",
-    borderRadius: moderateScale(12),
-    padding: moderateScale(12),
-    marginBottom: verticalScale(8),
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOpacity: 0.03,
-    shadowRadius: 3,
-  },
-  mealInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  mealName: {
-    fontSize: moderateScale(14),
-    fontWeight: "500",
-    color: "#2d3436",
-  },
-  caloriesText: {
-    fontSize: moderateScale(13),
-    color: "#636e72",
-    fontWeight: "600",
-  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -575,13 +393,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "#f1f2f6",
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  suggestionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  suggestionIcon: {
-    marginRight: scale(8),
   },
   suggestionText: {
     fontSize: moderateScale(14),

@@ -1,46 +1,27 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   Alert,
-  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 
+import MenuItem from "@/components/MenuItem";
+import StatTile from "@/components/StatTile";
 import { useAuth } from "@/context/AuthContext";
-import { where } from "firebase/firestore";
-import useFetch from "../../hooks/useFetch";
-import { UserProfile } from "../../types";
-
-const { width } = Dimensions.get("window");
+import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-  const queryConstraints = useMemo(() => {
-    return user?.uid ? [where("uid", "==", user.uid)] : null;
-  }, [user?.uid]);
-
-  const {
-    data: usersData,
-    loading,
-    error,
-  } = useFetch<UserProfile>("users", queryConstraints);
-
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-
-  useEffect(() => {
-    if (usersData && usersData.length > 0) {
-      setProfile(usersData[0]);
-    }
-  }, [usersData]);
+  /* Removed local fetching in favor of AuthContext */
+  const profile = user;
 
   const formattedHeight = useMemo(() => {
     if (!profile?.height) return "--";
@@ -199,45 +180,13 @@ const ProfileScreen = () => {
             }}
             color="#ff7675"
             isDestructive
+            hideBorder
           />
         </View>
       </ScrollView>
     </View>
   );
 };
-
-// --- Sub Components ---
-
-const StatTile = ({ label, value, unit, icon, color, bg }: any) => (
-  <View style={[styles.statTile, { backgroundColor: bg }]}>
-    <View style={[styles.statIconContainer, { backgroundColor: "#fff" }]}>
-      <MaterialCommunityIcons name={icon} size={20} color={color} />
-    </View>
-    <View>
-      <Text style={[styles.statValue, { color: color }]}>
-        {value}
-        <Text style={styles.statUnit}>{unit && ` ${unit}`}</Text>
-      </Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  </View>
-);
-
-const MenuItem = ({ icon, label, onPress, color, isDestructive }: any) => (
-  <TouchableOpacity
-    style={styles.menuItem}
-    onPress={onPress}
-    activeOpacity={0.7}
-  >
-    <View style={[styles.menuIconBox, { backgroundColor: `${color}15` }]}>
-      <MaterialCommunityIcons name={icon} size={22} color={color} />
-    </View>
-    <Text style={[styles.menuLabel, isDestructive && { color: color }]}>
-      {label}
-    </Text>
-    <MaterialCommunityIcons name="chevron-right" size={20} color="#b2bec3" />
-  </TouchableOpacity>
-);
 
 export default ProfileScreen;
 

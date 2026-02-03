@@ -1,3 +1,5 @@
+import HomeStatusCard from "@/components/HomeStatusCard";
+import MealCard from "@/components/MealCard";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
@@ -6,6 +8,7 @@ import { useCallback, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
+
 const index = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -119,77 +122,34 @@ const index = () => {
         {/* Stats Section */}
         <View style={styles.statusSection}>
           {/* Water Intake Card */}
-          <TouchableOpacity
-            style={styles.statusCard}
+          <HomeStatusCard
+            title="Water"
+            value={`${(waterIntake * 0.25).toFixed(1)}L`}
+            icon="water"
+            iconColor="#317fc4ff"
+            gradientColors={["#4facfe", "#00f2fe"]}
             onPress={() => router.push("/WaterScreen")}
-            activeOpacity={0.9}
-          >
-            <LinearGradient
-              colors={["#4facfe", "#00f2fe"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.statusGradient}
-            >
-              <View style={styles.iconCircle}>
-                <Ionicons
-                  name="water"
-                  size={moderateScale(24)}
-                  color="#317fc4ff"
-                />
-              </View>
-              <Text style={styles.statusTitleLight}>Water</Text>
-              <Text style={styles.statusValueLight}>
-                {(waterIntake * 0.25).toFixed(1)}L
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          />
           {/* Calories Card */}
-          <TouchableOpacity
-            style={styles.statusCard}
+          <HomeStatusCard
+            title="Calories"
+            value={calories}
+            icon="flame"
+            iconColor="#e46f73ff"
+            gradientColors={["#ff9a9e", "#fecfef"]}
             onPress={() => router.push("/CaloriesScreen")}
-            activeOpacity={0.9}
-          >
-            <LinearGradient
-              colors={["#ff9a9e", "#fecfef"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.statusGradient}
-            >
-              <View style={styles.iconCircle}>
-                <Ionicons
-                  name="flame"
-                  size={moderateScale(24)}
-                  color="#e46f73ff"
-                />
-              </View>
-              <Text style={styles.statusTitleLight}>Calories</Text>
-              <Text style={styles.statusValueLight}>{calories}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          />
           {/* Recipes Card */}
-          <TouchableOpacity
-            style={styles.statusCard}
+          <HomeStatusCard
+            title="Recipes"
+            label="View All"
+            icon="restaurant"
+            iconColor="#038970ff"
+            gradientColors={["#66dd8eff", "#5fefd5ff"]}
             onPress={() => router.push("/RecipeSuggestionScreen")}
-            activeOpacity={0.9}
-          >
-            <LinearGradient
-              colors={["#66dd8eff", "#5fefd5ff"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.statusGradient}
-            >
-              <View style={styles.iconCircle}>
-                <Ionicons
-                  name="restaurant"
-                  size={moderateScale(22)}
-                  color="#038970ff"
-                />
-              </View>
-              <Text style={styles.statusTitleLight}>Recipes</Text>
-              <Text style={styles.statusLabelLight}>View All</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          />
         </View>
+
         {/* Nutrition Progress */}
         <View style={styles.progressSection}>
           <Text style={styles.progressTitle}>Nutrition Progress</Text>
@@ -220,36 +180,11 @@ const index = () => {
             </TouchableOpacity>
           </View>
           {/* Meal Card */}
-          <TouchableOpacity
-            activeOpacity={0.9}
+          <MealCard
+            name="Breakfast"
+            description="180 Calories | 20 mins"
             onPress={() => router.push("/MealLogScreen")}
-            style={styles.mealCard}
-          >
-            <View style={styles.mealIconPlaceholder}>
-              <Ionicons
-                name="fast-food"
-                size={moderateScale(24)}
-                color="#fff"
-              />
-            </View>
-            <View style={styles.mealInfo}>
-              <Text style={styles.mealName}>Breakfast</Text>
-              <Text style={styles.mealDesc}>180 Calories | 20 mins</Text>
-              <View style={styles.mealProgressBg}>
-                <LinearGradient
-                  colors={["#00a2f9ff", "#023b8bb1"]}
-                  style={styles.mealProgressFill}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                />
-              </View>
-            </View>
-            <Ionicons
-              name="chevron-forward"
-              size={moderateScale(20)}
-              color="#ccc"
-            />
-          </TouchableOpacity>
+          />
         </View>
       </View>
     </View>
@@ -275,7 +210,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: verticalScale(20),
+    marginBottom: verticalScale(30),
   },
   headerLeft: {
     flexDirection: "row",
@@ -423,61 +358,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: verticalScale(25),
   },
-  statusCard: {
-    width: "31%",
-    height: verticalScale(130),
-    borderRadius: moderateScale(20),
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 4,
-    backgroundColor: "#fff",
-    overflow: "hidden",
-  },
-  statusGradient: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: moderateScale(10),
-  },
-  iconCircle: {
-    width: moderateScale(45),
-    height: moderateScale(45),
-    borderRadius: moderateScale(22.5),
-    backgroundColor: "rgba(255,255,255,0.9)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: verticalScale(10),
-    elevation: 2,
-  },
-  statusTitleLight: {
-    fontSize: moderateScale(13),
-    fontWeight: "700",
-    color: "#fff",
-    marginBottom: verticalScale(2),
-    textShadowColor: "rgba(0, 0, 0, 0.1)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  statusValueLight: {
-    fontSize: moderateScale(15),
-    fontWeight: "800",
-    color: "#fff",
-    textShadowColor: "rgba(0, 0, 0, 0.1)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  statusLabelLight: {
-    fontSize: moderateScale(11),
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.9)",
-  },
-  // statusTitle: { ... } (Removed old styles if unused, or keep if needed elsewhere)
-  statusTitle: {
-    fontSize: moderateScale(12),
-    // ... keeping for backward compat if needed, but likely unused in this section
-    color: "#000",
-  },
   progressSection: {
     marginBottom: verticalScale(25),
   },
@@ -526,59 +406,5 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(12),
     color: "#ADA4A5",
     fontWeight: "600",
-  },
-  mealCard: {
-    backgroundColor: "#FFF",
-    borderRadius: moderateScale(16),
-    flexDirection: "row",
-    alignItems: "center",
-    padding: moderateScale(15),
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    marginBottom: verticalScale(10),
-  },
-  mealIconPlaceholder: {
-    width: moderateScale(50),
-    height: moderateScale(50),
-    borderRadius: moderateScale(25),
-    backgroundColor: "#0996e2ff",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  mealImage: {
-    width: moderateScale(50),
-    height: moderateScale(50),
-    borderRadius: moderateScale(25),
-  },
-  mealInfo: {
-    flex: 1,
-    marginLeft: scale(15),
-    marginRight: scale(10),
-  },
-  mealName: {
-    fontSize: moderateScale(14),
-    fontWeight: "600",
-    color: "#1D1617",
-  },
-  mealDesc: {
-    fontSize: moderateScale(11),
-    color: "#A4A9AD",
-    marginTop: verticalScale(2),
-  },
-  mealProgressBg: {
-    backgroundColor: "#F7F8F8",
-    borderRadius: moderateScale(4),
-    height: verticalScale(6),
-    marginTop: verticalScale(8),
-    overflow: "hidden",
-    width: "100%",
-  },
-  mealProgressFill: {
-    height: "100%",
-    width: "40%",
-    borderRadius: moderateScale(4),
   },
 });

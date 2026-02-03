@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -12,25 +12,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 
+import TypingDot from "@/components/TypingDot";
+import { AI_SUGGESTIONS } from "@/constants/data";
 import { useChat } from "@/context/ChatContext";
 import { ChatMessage } from "../types";
-
-const SUGGESTIONS = [
-  { id: "1", text: "Create a meal plan for weight loss", icon: "food-apple" },
-  { id: "2", text: "How much protein do I need?", icon: "arm-flex" },
-  { id: "3", text: "Healthy snack ideas", icon: "food-croissant" },
-  { id: "4", text: "Explain macronutrients", icon: "chart-pie" },
-];
 
 const AiAssistant = () => {
   const router = useRouter();
@@ -133,7 +121,7 @@ const AiAssistant = () => {
               </Text>
 
               <View style={styles.suggestionsGrid}>
-                {SUGGESTIONS.map((s) => (
+                {AI_SUGGESTIONS.map((s) => (
                   <TouchableOpacity
                     key={s.id}
                     style={styles.suggestionCard}
@@ -217,23 +205,6 @@ const AiAssistant = () => {
       </KeyboardAvoidingView>
     </View>
   );
-};
-
-const TypingDot = ({ delay }: { delay: number }) => {
-  const opacity = useSharedValue(0.3);
-
-  useEffect(() => {
-    opacity.value = withSequence(
-      withTiming(0.3, { duration: delay }),
-      withRepeat(withTiming(1, { duration: 500 }), -1, true),
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
-
-  return <Animated.View style={[styles.dot, animatedStyle]} />;
 };
 
 export default AiAssistant;
@@ -423,12 +394,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#f1f2f6",
   },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#667eea",
-  },
+  //   dot: {
+  //     width: 6,
+  //     height: 6,
+  //     borderRadius: 3,
+  //     backgroundColor: "#667eea",
+  //   },
   inputContainer: {
     backgroundColor: "#fff",
     paddingHorizontal: scale(20),

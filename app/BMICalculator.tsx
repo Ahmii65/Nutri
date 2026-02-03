@@ -18,6 +18,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
+
 const BMICalculator = () => {
   const router = useRouter();
   const [weight, setWeight] = useState("");

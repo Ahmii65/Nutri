@@ -5,6 +5,7 @@ import {
   signOut,
   User,
 } from "firebase/auth";
+import { doc, onSnapshot } from "firebase/firestore";
 import {
   createContext,
   ReactNode,
@@ -12,7 +13,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { auth } from "../config/firebase";
+import { auth, db } from "../config/firebase";
 import { UserService } from "../services/userService";
 import { AuthContextType, UserProfile } from "../types";
 
@@ -31,23 +32,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
+    let unsubscribeFirestore: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(
       auth,
-      (firebaseUser: User | null) => {
+      async (firebaseUser: User | null) => {
         if (firebaseUser) {
-          // Ideally fetch user profile from Firestore here to get full UserProfile
-          // For now, casting basics
-          setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-          } as UserProfile);
+          // Subscribe to user document in Firestore
+          const userDocRef = doc(db, "users", firebaseUser.uid);
+
+          unsubscribeFirestore = onSnapshot(
+            userDocRef,
+            (docSnap) => {
+              if (docSnap.exists()) {
+                setUser({
+                  uid: firebaseUser.uid,
+                  email: firebaseUser.email,
+                  ...docSnap.data(),
+                } as UserProfile);
+              } else {
+                // Fallback if doc doesn't exist yet (shouldn't happen often if flow is correct)
+                setUser({
+                  uid: firebaseUser.uid,
+                  email: firebaseUser.email,
+                } as UserProfile);
+              }
+              setLoading(false);
+            },
+            (error) => {
+              console.error("Error fetching user profile:", error);
+              setLoading(false);
+            },
+          );
         } else {
           setUser(null);
+          setLoading(false);
+          if (unsubscribeFirestore) {
+            unsubscribeFirestore();
+            unsubscribeFirestore = null;
+          }
         }
-        setLoading(false);
       },
     );
-    return unsubscribe;
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFirestore) {
+        unsubscribeFirestore();
+      }
+    };
   }, []);
 
   const login = async (email: string, password: string) => {

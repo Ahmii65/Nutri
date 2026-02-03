@@ -1,9 +1,26 @@
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { ChatProvider } from "../context/ChatContext";
 
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
+
 const StackLayout = () => {
   const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading) {
+      SplashScreen.hideAsync();
+    }
+  }, [loading]);
+
+  if (loading) {
+    return null; // Keep splash screen visible instead of showing a spinner
+  }
 
   return (
     <Stack
@@ -34,6 +51,15 @@ const StackLayout = () => {
 };
 
 export default function RootLayout() {
+  const [loaded] = useFonts({
+    ...Ionicons.font,
+    ...MaterialCommunityIcons.font,
+  });
+
+  if (!loaded) {
+    return null;
+  }
+
   return (
     <AuthProvider>
       <ChatProvider>

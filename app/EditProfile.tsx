@@ -4,29 +4,22 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
-  FlatList,
-  Modal,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 
+import CustomPicker from "@/components/CustomPicker";
 import { useAuth } from "@/context/AuthContext";
 import { where } from "firebase/firestore";
 import { ActivityIndicator } from "react-native";
 import useFetch from "../hooks/useFetch";
 import { UserService } from "../services/userService";
-import {
-  CustomPickerProps,
-  InputFieldProps,
-  ProfileState,
-  UserProfile,
-} from "../types";
+import { InputFieldProps, ProfileState, UserProfile } from "../types";
 
 const InputField = ({
   label,
@@ -50,87 +43,7 @@ const InputField = ({
   </View>
 );
 
-const CustomPicker = ({
-  selectedValue,
-  onValueChange,
-  options,
-  placeholder,
-}: CustomPickerProps) => {
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const handleSelect = (value: string) => {
-    onValueChange(value);
-    setModalVisible(false);
-  };
-
-  const currentLabel =
-    options.find((opt) => opt.value === selectedValue)?.label || placeholder;
-
-  return (
-    <View>
-      <TouchableOpacity
-        style={styles.pickerButton}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text
-          style={[styles.pickerButtonText, !selectedValue && { color: "#999" }]}
-        >
-          {currentLabel}
-        </Text>
-        <MaterialCommunityIcons
-          name="chevron-down"
-          size={moderateScale(20)}
-          color="#666"
-        />
-      </TouchableOpacity>
-
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{placeholder}</Text>
-              <FlatList
-                data={options}
-                keyExtractor={(item) => item.value}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={[
-                      styles.modalItem,
-                      selectedValue === item.value && styles.modalItemSelected,
-                    ]}
-                    onPress={() => handleSelect(item.value)}
-                  >
-                    <Text
-                      style={[
-                        styles.modalItemText,
-                        selectedValue === item.value &&
-                          styles.modalItemTextSelected,
-                      ]}
-                    >
-                      {item.label}
-                    </Text>
-                    {selectedValue === item.value && (
-                      <MaterialCommunityIcons
-                        name="check"
-                        size={moderateScale(20)}
-                        color="#4facfe"
-                      />
-                    )}
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-    </View>
-  );
-};
+// CustomPicker imported from components/CustomPicker
 
 const EditProfile = () => {
   const { user } = useAuth();
@@ -546,21 +459,7 @@ const styles = StyleSheet.create({
     height: verticalScale(100),
     textAlignVertical: "top",
   },
-  pickerButton: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#f8f9fa",
-    borderRadius: moderateScale(10),
-    paddingHorizontal: scale(15),
-    paddingVertical: verticalScale(14),
-    borderWidth: 1,
-    borderColor: "#e1e1e1",
-  },
-  pickerButtonText: {
-    fontSize: moderateScale(15),
-    color: "#2d3436",
-  },
+  /* CustomPicker styles moved to component */
   pickerContainer: {
     marginTop: verticalScale(5),
   },
@@ -618,43 +517,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     letterSpacing: 1,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "80%",
-    backgroundColor: "#fff",
-    borderRadius: moderateScale(20),
-    padding: moderateScale(20),
-    maxHeight: "60%",
-  },
-  modalTitle: {
-    fontSize: moderateScale(18),
-    fontWeight: "bold",
-    marginBottom: verticalScale(15),
-    textAlign: "center",
-    color: "#2d3436",
-  },
-  modalItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: verticalScale(15),
-    borderBottomWidth: 1,
-    borderBottomColor: "#f1f2f6",
-  },
-  modalItemSelected: {
-    backgroundColor: "#f8f9fa",
-  },
-  modalItemText: {
-    fontSize: moderateScale(16),
-    color: "#636e72",
-  },
-  modalItemTextSelected: {
-    color: "#4facfe",
-    fontWeight: "bold",
-  },
+  /* Modal styles moved to component */
 });
