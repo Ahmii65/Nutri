@@ -4,7 +4,17 @@ import React from "react";
 import { View } from "react-native";
 import { moderateScale } from "react-native-size-matters";
 
-const TabIcon = ({ focused, name, size, color }) => {
+const TabIcon = ({
+  focused,
+  name,
+  size,
+  color,
+}: {
+  focused: boolean;
+  name: React.ComponentProps<typeof Ionicons>["name"];
+  size: number;
+  color: string;
+}) => {
   return (
     <View style={{ alignItems: "center", justifyContent: "center" }}>
       <Ionicons name={name} size={size} color={color} />
@@ -61,13 +71,12 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="NutritionScreen"
           options={{
-            title: "Nutrition",
             tabBarIcon: ({ size, color, focused }) => (
               <TabIcon
                 size={size}
                 color={color}
                 focused={focused}
-                name={focused ? "restaurant" : "restaurant-outline"}
+                name={focused ? "chatbubbles" : "chatbubbles-outline"}
               />
             ),
           }}

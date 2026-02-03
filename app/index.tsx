@@ -2,7 +2,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
-  Animated,
   Dimensions,
   FlatList,
   Image,
@@ -11,6 +10,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  SharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 const { width } = Dimensions.get("window");
 const SLIDES = [
@@ -37,24 +44,40 @@ const SLIDES = [
   },
 ];
 
-const Pagination = ({ data, scrollX }) => {
+const Pagination = ({
+  data,
+  scrollX,
+}: {
+  data: any[];
+  scrollX: SharedValue<number>;
+}) => {
   return (
     <View style={styles.paginationContainer}>
       {data.map((_, i) => {
         const inputRange = [(i - 1) * width, i * width, (i + 1) * width];
-        const dotWidth = scrollX.interpolate({
-          inputRange,
-          outputRange: [10, 20, 10],
-          extrapolate: "clamp",
+
+        const animatedDotStyle = useAnimatedStyle(() => {
+          const dotWidth = interpolate(
+            scrollX.value,
+            inputRange,
+            [10, 20, 10],
+            Extrapolation.CLAMP,
+          );
+          const opacity = interpolate(
+            scrollX.value,
+            inputRange,
+            [0.3, 1, 0.3],
+            Extrapolation.CLAMP,
+          );
+          return {
+            width: dotWidth,
+            opacity: opacity,
+          };
         });
-        const opacity = scrollX.interpolate({
-          inputRange,
-          outputRange: [0.3, 1, 0.3],
-          extrapolate: "clamp",
-        });
+
         return (
           <Animated.View
-            style={[styles.dot, { width: dotWidth, opacity }]}
+            style={[styles.dot, animatedDotStyle]}
             key={i.toString()}
           />
         );
@@ -65,20 +88,28 @@ const Pagination = ({ data, scrollX }) => {
 const FirstScreen = () => {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollX = useRef(new Animated.Value(0)).current;
-  const slidesRef = useRef(null);
+  const scrollX = useSharedValue(0);
+  const slidesRef = useRef<FlatList>(null);
 
-  const viewableItemsChanged = useRef(({ viewableItems }) => {
-    if (viewableItems && viewableItems.length > 0) {
-      setCurrentIndex(viewableItems[0].index);
-    }
-  }).current;
+  const viewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: any[] }) => {
+      if (viewableItems && viewableItems.length > 0) {
+        setCurrentIndex(viewableItems[0].index);
+      }
+    },
+  ).current;
 
   const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
+
   const scrollToNext = () => {
     if (currentIndex < SLIDES.length - 1) {
-      slidesRef.current.scrollToIndex({ index: currentIndex + 1 });
+      slidesRef.current?.scrollToIndex({ index: currentIndex + 1 });
     } else {
       router.push("/Registration");
     }
@@ -88,7 +119,7 @@ const FirstScreen = () => {
       {/* <StatusBar barStyle="dark-content" backgroundColor="#fff" /> */}
 
       <View style={styles.sliderContainer}>
-        <FlatList
+        <Animated.FlatList
           data={SLIDES}
           renderItem={({ item }) => (
             <View style={styles.slide}>
@@ -104,12 +135,8 @@ const FirstScreen = () => {
           pagingEnabled
           bounces={false}
           keyExtractor={(item) => item.id}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            {
-              useNativeDriver: false,
-            },
-          )}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
           onViewableItemsChanged={viewableItemsChanged}
           viewabilityConfig={viewConfig}
           ref={slidesRef}

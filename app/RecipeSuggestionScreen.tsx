@@ -1,3 +1,5 @@
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -16,7 +18,6 @@ import {
   View,
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
 
 const RecipeCard = ({
   recipe,
@@ -24,6 +25,12 @@ const RecipeCard = ({
   onPress,
   isFavorite,
   onToggleFavorite,
+}: {
+  recipe: any;
+  single?: boolean;
+  onPress?: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
 }) => (
   <Pressable
     onPress={onPress}
@@ -47,18 +54,18 @@ const RecipeCard = ({
           )}
         </View>
         <Pressable
-          onPress={() => onToggleFavorite(recipe.id)}
+          onPress={() => onToggleFavorite?.(recipe.id)}
           style={styles.favoriteButton}
           hitSlop={moderateScale(10)}
         >
-          <Icon
+          <Ionicons
             name={isFavorite ? "heart" : "heart-outline"}
             size={moderateScale(22)}
             color={isFavorite ? "#ff4757" : "#2d3436"}
           />
         </Pressable>
         <View style={styles.ratingBadge}>
-          <Icon name="star" size={moderateScale(10)} color="#FFD700" />
+          <Ionicons name="star" size={moderateScale(10)} color="#FFD700" />
           <Text style={styles.ratingText}>{recipe.rating}</Text>
         </View>
       </View>
@@ -71,7 +78,7 @@ const RecipeCard = ({
 
         <View style={styles.recipeMeta}>
           <View style={styles.metaItem}>
-            <Icon
+            <Ionicons
               name="flame-outline"
               size={moderateScale(12)}
               color="#747d8c"
@@ -79,7 +86,7 @@ const RecipeCard = ({
             <Text style={styles.metaText}>{recipe.calories}kcal</Text>
           </View>
           <View style={styles.metaItem}>
-            <Icon
+            <Ionicons
               name="time-outline"
               size={moderateScale(12)}
               color="#747d8c"
@@ -99,6 +106,13 @@ const RecipeDetailModal = ({
   isFavorite,
   onToggleFavorite,
   onShare,
+}: {
+  recipe: any;
+  visible: boolean;
+  onClose: () => void;
+  isFavorite: boolean;
+  onToggleFavorite: (id: string) => void;
+  onShare: (recipe: any) => void;
 }) => {
   if (!recipe) return null;
 
@@ -141,13 +155,17 @@ const RecipeDetailModal = ({
 
               <View style={styles.headerOverlay}>
                 <Pressable onPress={onClose} style={styles.modalCloseBtn}>
-                  <Icon name="close" size={moderateScale(24)} color="#333" />
+                  <Ionicons
+                    name="close"
+                    size={moderateScale(24)}
+                    color="#333"
+                  />
                 </Pressable>
                 <Pressable
                   onPress={() => onToggleFavorite(recipe.id)}
                   style={styles.modalFavBtn}
                 >
-                  <Icon
+                  <Ionicons
                     name={isFavorite ? "heart" : "heart-outline"}
                     size={moderateScale(24)}
                     color={isFavorite ? "#ff4757" : "#333"}
@@ -194,7 +212,7 @@ const RecipeDetailModal = ({
               {/* Quick Info */}
               <View style={styles.quickInfoRow}>
                 <View style={styles.quickInfoItem}>
-                  <Icon
+                  <Ionicons
                     name="time-outline"
                     size={moderateScale(20)}
                     color="#0984e3"
@@ -202,7 +220,7 @@ const RecipeDetailModal = ({
                   <Text style={styles.quickInfoText}>{recipe.prepTime}</Text>
                 </View>
                 <View style={styles.quickInfoItem}>
-                  <Icon
+                  <Ionicons
                     name="flame-outline"
                     size={moderateScale(20)}
                     color="#e17055"
@@ -212,7 +230,7 @@ const RecipeDetailModal = ({
                   </Text>
                 </View>
                 <View style={styles.quickInfoItem}>
-                  <Icon
+                  <Ionicons
                     name="people-outline"
                     size={moderateScale(20)}
                     color="#00b894"
@@ -226,7 +244,7 @@ const RecipeDetailModal = ({
               {/* Ingredients */}
               <Text style={styles.sectionHeader}>Ingredients</Text>
               <View style={styles.ingredientsList}>
-                {recipe.ingredients.map((item, index) => (
+                {recipe.ingredients.map((item: string, index: number) => (
                   <View key={index} style={styles.ingredientRow}>
                     <View style={styles.bulletPoint} />
                     <Text style={styles.ingredientText}>{item}</Text>
@@ -237,7 +255,7 @@ const RecipeDetailModal = ({
               {/* Instructions */}
               <Text style={styles.sectionHeader}>Instructions</Text>
               <View style={styles.instructionsList}>
-                {recipe.instructions.map((step, index) => (
+                {recipe.instructions.map((step: string, index: number) => (
                   <View key={index} style={styles.instructionRow}>
                     <View style={styles.stepCircle}>
                       <Text style={styles.stepNumber}>{index + 1}</Text>
@@ -254,7 +272,7 @@ const RecipeDetailModal = ({
                   end={{ x: 1, y: 0 }}
                   style={styles.shareGradient}
                 >
-                  <Icon
+                  <Ionicons
                     name="share-social-outline"
                     size={moderateScale(20)}
                     color="#fff"
@@ -273,7 +291,7 @@ const RecipeDetailModal = ({
 };
 
 // Module-level cache to persist data across navigation
-const recipeCache = {};
+const recipeCache: Record<string, any[]> = {};
 
 const RecipeSuggestionScreen = () => {
   const router = useRouter();
@@ -288,10 +306,10 @@ const RecipeSuggestionScreen = () => {
     return recipeCache[cacheKey] || [];
   };
 
-  const [recipes, setRecipes] = useState(getInitialRecipes);
+  const [recipes, setRecipes] = useState<any[]>(getInitialRecipes);
   const [loading, setLoading] = useState(false);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [favorites, setFavorites] = useState([]);
+  const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [showRecipeDetail, setShowRecipeDetail] = useState(false);
 
   const categories = [
@@ -359,7 +377,7 @@ const RecipeSuggestionScreen = () => {
 
       let mappedRecipes = [];
       if (data.meals) {
-        mappedRecipes = data.meals.map((meal) => {
+        mappedRecipes = data.meals.map((meal: any) => {
           // Extract ingredients and measures
           const ingredients = [];
           for (let i = 1; i <= 20; i++) {
@@ -374,7 +392,7 @@ const RecipeSuggestionScreen = () => {
           const instructions = meal.strInstructions
             ? meal.strInstructions
                 .split(/\r\n|\n/)
-                .filter((step) => step.trim() !== "")
+                .filter((step: string) => step.trim() !== "")
             : ["Cook thoroughly and serve."];
 
           // Simulate nutritional data
@@ -419,19 +437,19 @@ const RecipeSuggestionScreen = () => {
   };
 
   // Effect for Category changes (Immediate)
-  React.useEffect(() => {
+  useEffect(() => {
     fetchRecipes();
   }, [selectedCategory]);
 
   // Effect for Search changes (Debounced)
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       fetchRecipes();
     }, 800);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const toggleFavorite = (recipeId) => {
+  const toggleFavorite = (recipeId: string) => {
     setFavorites((prev) =>
       prev.includes(recipeId)
         ? prev.filter((id) => id !== recipeId)
@@ -465,7 +483,11 @@ const RecipeSuggestionScreen = () => {
               onPress={() => router.back()}
               style={styles.iconBtn}
             >
-              <Icon name="chevron-back" size={moderateScale(28)} color="#fff" />
+              <Ionicons
+                name="chevron-back"
+                size={moderateScale(28)}
+                color="#fff"
+              />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Discover Recipes</Text>
             <View style={{ width: moderateScale(28) }} />
@@ -473,7 +495,7 @@ const RecipeSuggestionScreen = () => {
 
           {/* Search Bar */}
           <View style={styles.searchContainer}>
-            <Icon
+            <Ionicons
               name="search-outline"
               size={moderateScale(20)}
               color="#a4b0be"
@@ -488,7 +510,7 @@ const RecipeSuggestionScreen = () => {
             />
             {searchQuery !== "" && (
               <Pressable onPress={() => setSearchQuery("")}>
-                <Icon
+                <Ionicons
                   name="close-circle"
                   size={moderateScale(18)}
                   color="#a4b0be"
@@ -542,7 +564,7 @@ const RecipeSuggestionScreen = () => {
         <FlatList
           data={recipes}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
+          renderItem={({ item }: { item: any }) => (
             <RecipeCard
               recipe={item}
               single={recipes.length === 1}
@@ -560,7 +582,11 @@ const RecipeSuggestionScreen = () => {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Icon name="search" size={moderateScale(50)} color="#dcdde1" />
+              <Ionicons
+                name="search"
+                size={moderateScale(50)}
+                color="#dcdde1"
+              />
               <Text style={styles.emptyText}>No recipes found</Text>
             </View>
           }
@@ -571,7 +597,9 @@ const RecipeSuggestionScreen = () => {
         recipe={selectedRecipe}
         visible={showRecipeDetail}
         onClose={() => setShowRecipeDetail(false)}
-        isFavorite={selectedRecipe && favorites.includes(selectedRecipe.id)}
+        isFavorite={
+          selectedRecipe ? favorites.includes(selectedRecipe.id) : false
+        }
         onToggleFavorite={toggleFavorite}
         onShare={handleShareRecipe}
       />

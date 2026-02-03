@@ -1,10 +1,10 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
-  Animated,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,8 +12,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
 const BMICalculator = () => {
   const router = useRouter();
   const [weight, setWeight] = useState("");
@@ -21,10 +25,10 @@ const BMICalculator = () => {
   const [heightFeet, setHeightFeet] = useState("");
   const [heightInches, setHeightInches] = useState("");
   const [heightUnit, setHeightUnit] = useState("cm"); // 'cm' or 'ft'
-  const [bmi, setBmi] = useState(null);
+  const [bmi, setBmi] = useState<string | null>(null);
   const [category, setCategory] = useState("");
   // Animation value for the gauge/bar
-  const progressAnim = useRef(new Animated.Value(0)).current;
+  const progressAnim = useSharedValue(0);
   const calculateBMI = () => {
     const weightNum = parseFloat(weight);
     if (!weightNum || weightNum <= 0) {
@@ -72,11 +76,9 @@ const BMICalculator = () => {
     }
     setCategory(newCategory);
     // Animate the bar
-    Animated.timing(progressAnim, {
-      toValue: progressValue,
+    progressAnim.value = withTiming(progressValue, {
       duration: 1000,
-      useNativeDriver: false,
-    }).start();
+    });
 
     // Save to AsyncStorage
     const saveData = async () => {
@@ -97,7 +99,7 @@ const BMICalculator = () => {
     setHeightInches("");
     setBmi(null);
     setCategory("");
-    progressAnim.setValue(0);
+    progressAnim.value = 0;
   };
   const getMetricColor = () => {
     if (!category) return "#e0e0e0";
@@ -106,9 +108,10 @@ const BMICalculator = () => {
     if (category === "Overweight") return "#e67e22";
     return "#e74c3c";
   };
-  const barWidth = progressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0%", "100%"],
+  const barAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      width: `${progressAnim.value * 100}%`,
+    };
   });
   return (
     <View style={styles.container}>
@@ -124,7 +127,11 @@ const BMICalculator = () => {
               onPress={() => router.back()}
               style={styles.iconBtn}
             >
-              <Icon name="chevron-back" size={moderateScale(28)} color="#fff" />
+              <Ionicons
+                name="chevron-back"
+                size={moderateScale(28)}
+                color="#fff"
+              />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>BMI Calculator</Text>
             <View style={{ width: moderateScale(28) }} />
@@ -144,7 +151,7 @@ const BMICalculator = () => {
           <View style={styles.inputWrapper}>
             <Text style={styles.label}>Weight (kg)</Text>
             <View style={styles.inputContainer}>
-              <Icon
+              <Ionicons
                 name="scale-outline"
                 size={moderateScale(20)}
                 color="#a4b0be"
@@ -205,7 +212,7 @@ const BMICalculator = () => {
             <Text style={styles.label}>Height</Text>
             {heightUnit === "cm" ? (
               <View style={styles.inputContainer}>
-                <Icon
+                <Ionicons
                   name="resize-outline"
                   size={moderateScale(20)}
                   color="#a4b0be"
@@ -296,8 +303,8 @@ const BMICalculator = () => {
                 <Animated.View
                   style={[
                     styles.barFill,
+                    barAnimatedStyle,
                     {
-                      width: barWidth,
                       backgroundColor: getMetricColor(),
                     },
                   ]}
@@ -313,7 +320,11 @@ const BMICalculator = () => {
 
             <TouchableOpacity style={styles.resetBtn} onPress={resetCalculator}>
               <Text style={styles.resetBtnText}>Reset Calculation</Text>
-              <Icon name="refresh" size={moderateScale(18)} color="#636e72" />
+              <Ionicons
+                name="refresh"
+                size={moderateScale(18)}
+                color="#636e72"
+              />
             </TouchableOpacity>
           </View>
         )}

@@ -13,8 +13,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
 
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 const ForgotPassword = () => {
@@ -26,15 +26,6 @@ const ForgotPassword = () => {
       Alert.alert("Error", "Please enter your email address");
       return;
     }
-    // Mock Reset
-    setTimeout(() => {
-      Alert.alert(
-        "Success",
-        "Password reset link sent to your email address (Mock)",
-      );
-      setEmail("");
-      router.back();
-    }, 1000);
   };
 
   return (
@@ -58,10 +49,8 @@ const ForgotPassword = () => {
             onPress={() => router.back()}
             style={styles.backButton}
           >
-            <Icon name="arrow-back-outline" size={24} color="#1D1617" />
+            <Ionicons name="arrow-back-outline" size={24} color="#1D1617" />
           </TouchableOpacity>
-
-          <Text style={styles.subTitle}>Forgot Password?</Text>
           <Text style={styles.title}>Recover Your Account</Text>
           <Text style={styles.description}>
             Enter the email address associated with your account and we'll send
@@ -69,7 +58,7 @@ const ForgotPassword = () => {
           </Text>
 
           <View style={styles.inputContainer}>
-            <Icon
+            <Ionicons
               name="mail-outline"
               size={20}
               color="#5e5c5cff"
@@ -91,7 +80,7 @@ const ForgotPassword = () => {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={["#92a3fd", "#9dceff"]}
+              colors={["#4A75F0", "#6C8DF5"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.gradient}
@@ -99,13 +88,6 @@ const ForgotPassword = () => {
               <Text style={styles.resetText}>Reset Password</Text>
             </LinearGradient>
           </TouchableOpacity>
-
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Remember your password? </Text>
-            <TouchableOpacity onPress={() => router.push("/Login")}>
-              <Text style={styles.loginLink}>Login</Text>
-            </TouchableOpacity>
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

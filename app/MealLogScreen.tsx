@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,7 +16,7 @@ import {
   View,
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
+import { MealLogEntry, MealLogState } from "../types";
 
 const FOOD_CALORIE_DATA = [
   { name: "Apple", calories: 95, icon: "nutrition" },
@@ -35,17 +36,18 @@ const MealLogScreen = () => {
   const [dailyGoal, setDailyGoal] = useState(2000); // Default fallback
   const [goalLabel, setGoalLabel] = useState("Maintain Weight");
 
-  const [meals, setMeals] = useState({
+  const [meals, setMeals] = useState<MealLogState>({
     Breakfast: [],
     Lunch: [],
     Dinner: [],
     Snacks: [],
   });
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedMealType, setSelectedMealType] = useState("");
+  const [selectedMealType, setSelectedMealType] =
+    useState<keyof MealLogState>("Breakfast");
   const [mealName, setMealName] = useState("");
   const [calories, setCalories] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -94,13 +96,13 @@ const MealLogScreen = () => {
 
   const getTotalCalories = () => {
     let total = 0;
-    Object.values(meals).forEach((category) =>
-      category.forEach((item) => (total += item.calories)),
+    Object.values(meals).forEach((category: MealLogEntry[]) =>
+      category.forEach((item: MealLogEntry) => (total += item.calories)),
     );
     return total;
   };
 
-  const openAddMealModal = (type) => {
+  const openAddMealModal = (type: keyof MealLogState) => {
     setSelectedMealType(type);
     setModalVisible(true);
     setMealName("");
@@ -123,8 +125,8 @@ const MealLogScreen = () => {
 
     // Calculate new total and save for other screens
     let total = 0;
-    Object.values(newMeals).forEach((category) =>
-      category.forEach((item) => (total += item.calories)),
+    Object.values(newMeals).forEach((category: MealLogEntry[]) =>
+      category.forEach((item: MealLogEntry) => (total += item.calories)),
     );
     await AsyncStorage.setItem("calories_consumed", total.toString());
 
@@ -134,7 +136,7 @@ const MealLogScreen = () => {
     setModalVisible(false);
   };
 
-  const handleMealNameChange = (text) => {
+  const handleMealNameChange = (text: string) => {
     setMealName(text);
     if (text.length === 0) {
       setSuggestions([]);
@@ -149,7 +151,7 @@ const MealLogScreen = () => {
   const totalCalories = getTotalCalories();
   const progress = Math.min(totalCalories / dailyGoal, 1);
 
-  const renderMealSection = (title, iconName) => (
+  const renderMealSection = (title: keyof MealLogState, iconName: string) => (
     <View style={styles.sectionContainer}>
       <View style={styles.sectionHeaderRow}>
         <View style={styles.sectionTitleContainer}>
@@ -157,12 +159,20 @@ const MealLogScreen = () => {
             colors={["#e0c3fc", "#8ec5fc"]}
             style={styles.iconBackground}
           >
-            <Icon name={iconName} size={moderateScale(18)} color="#fff" />
+            <Ionicons
+              name={iconName as any}
+              size={moderateScale(18)}
+              color="#fff"
+            />
           </LinearGradient>
           <Text style={styles.sectionTitle}>{title}</Text>
         </View>
         <TouchableOpacity onPress={() => openAddMealModal(title)}>
-          <Icon name="add-circle" size={moderateScale(28)} color="#4facfe" />
+          <Ionicons
+            name="add-circle"
+            size={moderateScale(28)}
+            color="#4facfe"
+          />
         </TouchableOpacity>
       </View>
 
@@ -171,7 +181,7 @@ const MealLogScreen = () => {
           <Text style={styles.emptyText}>No food logged</Text>
         </View>
       ) : (
-        meals[title].map((meal, index) => (
+        meals[title].map((meal: MealLogEntry, index: number) => (
           <View key={index} style={styles.mealCard}>
             <View style={styles.mealInfo}>
               <Text style={styles.mealName}>{meal.name}</Text>
@@ -198,7 +208,11 @@ const MealLogScreen = () => {
               onPress={() => router.back()}
               style={styles.iconBtn}
             >
-              <Icon name="chevron-back" size={moderateScale(28)} color="#fff" />
+              <Ionicons
+                name="chevron-back"
+                size={moderateScale(28)}
+                color="#fff"
+              />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Food Diary</Text>
             <View style={{ width: moderateScale(28) }} />
@@ -269,7 +283,7 @@ const MealLogScreen = () => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Add {selectedMealType}</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Icon name="close" size={moderateScale(24)} color="#999" />
+                <Ionicons name="close" size={moderateScale(24)} color="#999" />
               </TouchableOpacity>
             </View>
 
@@ -298,7 +312,7 @@ const MealLogScreen = () => {
                     <View
                       style={{ flexDirection: "row", alignItems: "center" }}
                     >
-                      <Icon
+                      <Ionicons
                         name={item.icon || "fast-food"}
                         size={moderateScale(16)}
                         color="#aaa"

@@ -1,6 +1,9 @@
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   KeyboardAvoidingView,
@@ -16,17 +19,22 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
+import { useAuth } from "../context/AuthContext";
 
 const CustomPicker = ({
   selectedValue,
   onValueChange,
   options,
   placeholder,
+}: {
+  selectedValue: string;
+  onValueChange: (val: string) => void;
+  options: { label: string; value: string }[];
+  placeholder: string;
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
-  const handleSelect = (value) => {
+  const handleSelect = (value: string) => {
     onValueChange(value);
     setModalVisible(false);
   };
@@ -81,7 +89,7 @@ const CustomPicker = ({
                       {item.label}
                     </Text>
                     {selectedValue === item.value && (
-                      <Icon
+                      <Ionicons
                         name="checkmark"
                         size={moderateScale(20)}
                         color="#4A75F0"
@@ -98,9 +106,20 @@ const CustomPicker = ({
   );
 };
 
-import { useLocalSearchParams, useRouter } from "expo-router";
-
 // ... CustomPicker ...
+
+const getErrorMessage = (error: any) => {
+  if (error.code === "auth/email-already-in-use") {
+    return "This email is already registered.";
+  }
+  if (error.code === "auth/invalid-email") {
+    return "Please enter a valid email address.";
+  }
+  if (error.code === "auth/weak-password") {
+    return "Password should be at least 6 characters.";
+  }
+  return "Something went wrong. Please try again later.";
+};
 
 const Register2 = () => {
   const router = useRouter();
@@ -111,25 +130,43 @@ const Register2 = () => {
   const [age, setAge] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
+  const { saveUserProfile, user } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const genderTextColor = useMemo(() => {
     return gender ? "#1D1617" : "#ADA4A5";
   }, [gender]);
 
-  const { firstName, lastName } = params || {};
+  const { firstName, lastName, email } = params || {};
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!gender || !age || !height || !weight) {
       Alert.alert("Error", "Please fill all fields");
       return;
     }
-    // Navigate to next screen
-    router.replace("/(tabs)");
-    // Clear fields (optional, but good for UX if user comes back)
-    setGender("");
-    setAge("");
-    setHeight("");
-    setWeight("");
+
+    if (!user || !user.uid) {
+      Alert.alert("Error", "User not found. Please log in again.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await saveUserProfile(user.uid, {
+        firstName: firstName as string,
+        lastName: lastName as string,
+        email: email as string,
+        gender,
+        age,
+        height,
+        weight,
+      });
+      router.replace("/(tabs)");
+    } catch (error: any) {
+      Alert.alert("Save Failed", error.message || getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -162,7 +199,7 @@ const Register2 = () => {
           <View style={styles.formContainer}>
             <View style={styles.inputWrapper}>
               <View style={styles.inputContainer}>
-                <Icon
+                <Ionicons
                   name="male-female-outline"
                   size={22}
                   color="#4A75F0"
@@ -185,7 +222,7 @@ const Register2 = () => {
 
             <View style={styles.inputWrapper}>
               <View style={styles.inputContainer}>
-                <Icon
+                <Ionicons
                   name="calendar-outline"
                   size={22}
                   color="#4A75F0"
@@ -205,7 +242,7 @@ const Register2 = () => {
 
             <View style={styles.inputWrapper}>
               <View style={styles.inputContainer}>
-                <Icon
+                <Ionicons
                   name="resize-outline"
                   size={22}
                   color="#4A75F0"
@@ -226,7 +263,7 @@ const Register2 = () => {
 
             <View style={styles.inputWrapper}>
               <View style={styles.inputContainer}>
-                <Icon
+                <Ionicons
                   name="barbell-outline"
                   size={22}
                   color="#4A75F0"
@@ -258,8 +295,14 @@ const Register2 = () => {
                 end={{ x: 1, y: 0 }}
                 style={styles.gradient}
               >
-                <Text style={styles.nextText}>Next</Text>
-                <Icon name="arrow-forward" size={20} color="#fff" />
+                {loading ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <>
+                    <Text style={styles.nextText}>Complete Registration</Text>
+                    <Ionicons name="arrow-forward" size={20} color="#fff" />
+                  </>
+                )}
               </LinearGradient>
             </TouchableOpacity>
           </View>

@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -9,79 +10,20 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
+import { NotificationItem } from "../types";
 
 const NotificationScreen = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const [notifications] = useState([
+  const [notifications] = useState<NotificationItem[]>([
     {
       id: 1,
       title: "Congratulations, You have finished Workout",
       date: "29 May",
       color: "#92a3fd",
     },
-    {
-      id: 2,
-      title: "Hey, it’s time for lunch",
-      date: "8 April",
-      color: "#C58BF2",
-    },
-    {
-      id: 3,
-      title: "Water Reminder",
-      date: "8 April",
-      color: "#92a3fd",
-    },
-    {
-      id: 4,
-      title: "Congratulations, You have finished Workout",
-      date: "29 May",
-      color: "#92a3fd",
-    },
-    {
-      id: 5,
-      title: "Hey, it’s time for lunch",
-      date: "8 April",
-      color: "#C58BF2",
-    },
-    {
-      id: 6,
-      title: "Water Reminder",
-      date: "8 April",
-      color: "#92a3fd",
-    },
-    {
-      id: 7,
-      title: "Congratulations, You have finished Workout",
-      date: "29 May",
-      color: "#92a3fd",
-    },
-    {
-      id: 8,
-      title: "Hey, it’s time for lunch",
-      date: "8 April",
-      color: "#C58BF2",
-    },
-    {
-      id: 9,
-      title: "Hey, it’s time for lunch",
-      date: "8 April",
-      color: "#C58BF2",
-    },
-    {
-      id: 10,
-      title: "Water Reminder",
-      date: "8 April",
-      color: "#92a3fd",
-    },
-    {
-      id: 11,
-      title: "Congratulations, You have finished Workout",
-      date: "29 May",
-      color: "#92a3fd",
-    },
+    // ... rest of items
     {
       id: 12,
       title: "Hey, it’s time for lunch",
@@ -90,10 +32,10 @@ const NotificationScreen = () => {
     },
   ]);
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: NotificationItem }) => (
     <View style={styles.notificationCard}>
       <View style={[styles.iconCircle, { backgroundColor: item.color + "20" }]}>
-        <Icon
+        <Ionicons
           name="notifications"
           size={moderateScale(20)}
           color={item.color}
@@ -108,7 +50,7 @@ const NotificationScreen = () => {
       </View>
 
       <TouchableOpacity activeOpacity={0.6}>
-        <Icon
+        <Ionicons
           name="ellipsis-vertical"
           size={moderateScale(20)}
           color="#ADA4A5"
@@ -128,13 +70,17 @@ const NotificationScreen = () => {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Icon name="chevron-back" size={moderateScale(20)} color="#1D1617" />
+          <Ionicons
+            name="chevron-back"
+            size={moderateScale(20)}
+            color="#1D1617"
+          />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>Notifications</Text>
 
         <TouchableOpacity style={styles.headerButton} activeOpacity={0.7}>
-          <Icon
+          <Ionicons
             name="ellipsis-horizontal"
             size={moderateScale(20)}
             color="#1D1617"

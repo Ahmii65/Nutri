@@ -1,7 +1,10 @@
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,25 +16,47 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
+import { useAuth } from "../context/AuthContext";
 
-const Registration = () => {
-  const router = useRouter();
+const getErrorMessage = (error: any) => {
+  if (error.code === "auth/invalid-credential") {
+    return "Invalid email or password. Please try again.";
+  }
+  if (error.code === "auth/user-not-found") {
+    return "No account found with this email.";
+  }
+  if (error.code === "auth/wrong-password") {
+    return "Incorrect password.";
+  }
+  if (error.code === "auth/invalid-email") {
+    return "Please enter a valid email address.";
+  }
+  return "Something went wrong. Please try again later.";
+};
+
+const Login = () => {
   const insets = useSafeAreaInsets();
-  const [fName, setFName] = useState("");
-  const [sName, setSName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [cPassword, setCPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showCPassword, setShowCPassword] = useState(false);
+  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
-    // Navigate to next registration step
-    router.push({
-      pathname: "/Register2",
-      params: { firstName: fName, lastName: sName },
-    });
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await login(email, password);
+      router.replace("/(tabs)");
+    } catch (error) {
+      Alert.alert("Login Failed", getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,49 +79,13 @@ const Registration = () => {
         >
           <View style={styles.headerContainer}>
             <Text style={styles.subTitle}>Hey there,</Text>
-            <Text style={styles.title}>Create an Account</Text>
+            <Text style={styles.title}>Welcome Back</Text>
           </View>
 
           <View style={styles.formContainer}>
             <View style={styles.inputWrapper}>
               <View style={styles.inputContainer}>
-                <Icon
-                  name="person-outline"
-                  size={22}
-                  color="#4A75F0"
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="First Name"
-                  placeholderTextColor="#ADA4A5"
-                  value={fName}
-                  onChangeText={setFName}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <View style={styles.inputContainer}>
-                <Icon
-                  name="person-outline"
-                  size={22}
-                  color="#4A75F0"
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Last Name"
-                  placeholderTextColor="#ADA4A5"
-                  value={sName}
-                  onChangeText={setSName}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <View style={styles.inputContainer}>
-                <Icon
+                <Ionicons
                   name="mail-outline"
                   size={22}
                   color="#4A75F0"
@@ -109,13 +98,14 @@ const Registration = () => {
                   placeholderTextColor="#ADA4A5"
                   value={email}
                   onChangeText={setEmail}
+                  autoCapitalize="none"
                 />
               </View>
             </View>
 
             <View style={styles.inputWrapper}>
               <View style={styles.inputContainer}>
-                <Icon
+                <Ionicons
                   name="lock-closed-outline"
                   size={22}
                   color="#4A75F0"
@@ -132,7 +122,7 @@ const Registration = () => {
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
                 >
-                  <Icon
+                  <Ionicons
                     name={showPassword ? "eye-outline" : "eye-off-outline"}
                     size={22}
                     color="#ADA4A5"
@@ -141,40 +131,20 @@ const Registration = () => {
               </View>
             </View>
 
-            <View style={styles.inputWrapper}>
-              <View style={styles.inputContainer}>
-                <Icon
-                  name="lock-closed-outline"
-                  size={22}
-                  color="#4A75F0"
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Confirm Password"
-                  secureTextEntry={!showCPassword}
-                  placeholderTextColor="#ADA4A5"
-                  value={cPassword}
-                  onChangeText={setCPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowCPassword(!showCPassword)}
-                >
-                  <Icon
-                    name={showCPassword ? "eye-outline" : "eye-off-outline"}
-                    size={22}
-                    color="#ADA4A5"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
+            <TouchableOpacity
+              style={styles.forgotBtn}
+              onPress={() => router.push("/ForgotPassword")}
+            >
+              <Text style={styles.forgotPassword}>Forgot your password?</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.actionContainer}>
             <TouchableOpacity
-              onPress={handleRegister}
-              style={styles.registerBtn}
+              onPress={handleLogin}
+              style={styles.loginBtn}
               activeOpacity={0.8}
+              disabled={loading}
             >
               <LinearGradient
                 colors={["#4A75F0", "#6C8DF5"]}
@@ -182,20 +152,26 @@ const Registration = () => {
                 end={{ x: 1, y: 0 }}
                 style={styles.gradient}
               >
-                <Text style={styles.registerText}>Register</Text>
-                <Icon
-                  name="arrow-forward-outline"
-                  size={24}
-                  color="#FFF"
-                  style={{ marginLeft: 10 }}
-                />
+                {loading ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <>
+                    <Text style={styles.loginBtnText}>Login</Text>
+                    <Ionicons
+                      name="log-in-outline"
+                      size={24}
+                      color="#FFF"
+                      style={{ marginLeft: 10 }}
+                    />
+                  </>
+                )}
               </LinearGradient>
             </TouchableOpacity>
 
-            <View style={styles.loginContainer}>
-              <Text style={styles.loginText}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => router.replace("/Login")}>
-                <Text style={styles.loginLink}>Login</Text>
+            <View style={styles.registerContainer}>
+              <Text style={styles.registerText}>Don't have an account? </Text>
+              <TouchableOpacity onPress={() => router.replace("/Registration")}>
+                <Text style={styles.registerLink}>Register</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -227,7 +203,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     alignItems: "center",
-    marginBottom: verticalScale(30),
+    marginBottom: verticalScale(40),
   },
   subTitle: {
     fontFamily: "Poppins",
@@ -242,10 +218,10 @@ const styles = StyleSheet.create({
     color: "#1D1617",
   },
   formContainer: {
-    marginBottom: verticalScale(20),
+    marginBottom: verticalScale(30),
   },
   inputWrapper: {
-    marginBottom: verticalScale(15),
+    marginBottom: verticalScale(20),
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -275,11 +251,20 @@ const styles = StyleSheet.create({
     color: "#1D1617",
     height: "100%",
   },
+  forgotBtn: {
+    alignSelf: "center",
+  },
+  forgotPassword: {
+    color: "#ADA4A5",
+    fontSize: moderateScale(12),
+    fontFamily: "Poppins",
+    fontWeight: "500",
+    textDecorationLine: "underline",
+  },
   actionContainer: {
     alignItems: "center",
-    marginTop: verticalScale(10),
   },
-  registerBtn: {
+  loginBtn: {
     width: "100%",
     borderRadius: moderateScale(30),
     marginBottom: verticalScale(20),
@@ -296,23 +281,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: moderateScale(30),
   },
-  registerText: {
+  loginBtnText: {
     color: "#FFFFFF",
     fontSize: moderateScale(18),
     fontWeight: "700",
     fontFamily: "Poppins",
   },
-  loginContainer: {
+  registerContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
-  loginText: {
+  registerText: {
     fontFamily: "Poppins",
     fontSize: moderateScale(14),
     color: "#1D1617",
   },
-  loginLink: {
+  registerLink: {
     fontFamily: "Poppins",
     fontSize: moderateScale(14),
     color: "#4A75F0",
@@ -320,4 +305,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Registration;
+export default Login;

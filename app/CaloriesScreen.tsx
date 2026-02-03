@@ -1,47 +1,52 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import {
-  Animated,
-  Easing,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
 
 const CaloriesScreen = () => {
   const router = useRouter();
   const [data, setData] = useState({
-    bmi: null,
+    bmi: null as string | null,
     category: "",
-    weight: null,
+    weight: null as string | null,
     calories: "---",
     suggestion: "Loading...",
-    maintenance: null,
+    maintenance: null as number | null,
     consumed: 0,
   });
 
   // Animation Values
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
-  const progressAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useSharedValue(0);
+  const slideAnim = useSharedValue(50);
+  const scaleAnim = useSharedValue(0.8);
+  const progressAnim = useSharedValue(0);
 
   useFocusEffect(
     useCallback(() => {
       const loadData = async () => {
         try {
           // Reset Animations
-          fadeAnim.setValue(0);
-          slideAnim.setValue(50);
-          scaleAnim.setValue(0.8);
-          progressAnim.setValue(0);
+          fadeAnim.value = 0;
+          slideAnim.value = 50;
+          scaleAnim.value = 0.8;
+          progressAnim.value = 0;
 
           const bmi = await AsyncStorage.getItem("user_bmi");
           const category = await AsyncStorage.getItem("user_category");
@@ -89,43 +94,31 @@ const CaloriesScreen = () => {
             });
 
             // Start Animations
-            Animated.parallel([
-              Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 800,
-                useNativeDriver: true,
-                easing: Easing.out(Easing.exp),
-              }),
-              Animated.timing(slideAnim, {
-                toValue: 0,
-                duration: 800,
-                useNativeDriver: true,
-                easing: Easing.out(Easing.exp),
-              }),
-              Animated.spring(scaleAnim, {
-                toValue: 1,
-                friction: 6,
-                tension: 40,
-                useNativeDriver: true,
-              }),
-              Animated.timing(progressAnim, {
-                toValue: progress,
-                duration: 1000,
-                useNativeDriver: false,
-                easing: Easing.out(Easing.cubic),
-              }),
-            ]).start();
+            fadeAnim.value = withTiming(1, {
+              duration: 800,
+              easing: Easing.out(Easing.exp),
+            });
+            slideAnim.value = withTiming(0, {
+              duration: 800,
+              easing: Easing.out(Easing.exp),
+            });
+            scaleAnim.value = withSpring(1, {
+              damping: 6,
+              stiffness: 40,
+            });
+            progressAnim.value = withTiming(progress, {
+              duration: 1000,
+              easing: Easing.out(Easing.cubic),
+            });
           } else {
             setData((prev) => ({
               ...prev,
               suggestion: "Please calculate your BMI first.",
             }));
             // Start Fade even for empty state
-            Animated.timing(fadeAnim, {
-              toValue: 1,
+            fadeAnim.value = withTiming(1, {
               duration: 500,
-              useNativeDriver: true,
-            }).start();
+            });
           }
         } catch (e) {
           console.log("Error loading data", e);
@@ -135,7 +128,7 @@ const CaloriesScreen = () => {
     }, []),
   );
 
-  const getThemeColor = () => {
+  const getThemeColor = (): [string, string] => {
     if (!data.category) return ["#4facfe", "#00f2fe"];
     if (data.category === "Underweight") return ["#f1c40f", "#f39c12"];
     if (data.category === "Normal") return ["#2ecc71", "#27ae60"];
@@ -146,9 +139,23 @@ const CaloriesScreen = () => {
   const themeColors = getThemeColor();
   const primaryColor = themeColors[0];
 
-  const barWidth = progressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0%", "100%"],
+  const barWidthStyle = useAnimatedStyle(() => {
+    return {
+      width: `${progressAnim.value * 100}%`,
+    };
+  });
+
+  const fadeSlideStyle = useAnimatedStyle(() => {
+    return {
+      opacity: fadeAnim.value,
+      transform: [{ translateY: slideAnim.value }],
+    };
+  });
+
+  const scaleStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scaleAnim.value }],
+    };
   });
 
   const progressPercentage =
@@ -171,14 +178,18 @@ const CaloriesScreen = () => {
               onPress={() => router.back()}
               style={styles.iconBtn}
             >
-              <Icon name="chevron-back" size={moderateScale(28)} color="#fff" />
+              <Ionicons
+                name="chevron-back"
+                size={moderateScale(28)}
+                color="#fff"
+              />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Calorie Tracker</Text>
             <TouchableOpacity
               onPress={() => router.push("/NotificationScreen")}
               style={styles.iconBtn}
             >
-              <Icon
+              <Ionicons
                 name="notifications-outline"
                 size={moderateScale(24)}
                 color="#fff"
@@ -192,9 +203,7 @@ const CaloriesScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View
-          style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
-        >
+        <Animated.View style={fadeSlideStyle}>
           {data.bmi ? (
             <>
               {/* Main Calorie Display Card */}
@@ -202,12 +211,7 @@ const CaloriesScreen = () => {
                 <Text style={styles.sectionTitle}>Daily Calorie Goal</Text>
 
                 {/* Large Circular Display */}
-                <Animated.View
-                  style={[
-                    styles.calorieCircle,
-                    { transform: [{ scale: scaleAnim }] },
-                  ]}
-                >
+                <Animated.View style={[styles.calorieCircle, scaleStyle]}>
                   <LinearGradient
                     colors={themeColors}
                     style={styles.circleGradient}
@@ -229,8 +233,8 @@ const CaloriesScreen = () => {
                     <Animated.View
                       style={[
                         styles.progressBarFill,
+                        barWidthStyle,
                         {
-                          width: barWidth,
                           backgroundColor: primaryColor,
                         },
                       ]}
@@ -258,7 +262,7 @@ const CaloriesScreen = () => {
                     { backgroundColor: primaryColor + "15" },
                   ]}
                 >
-                  <Icon
+                  <Ionicons
                     name="body-outline"
                     size={moderateScale(18)}
                     color={primaryColor}
@@ -280,7 +284,7 @@ const CaloriesScreen = () => {
                         { backgroundColor: "#4facfe15" },
                       ]}
                     >
-                      <Icon
+                      <Ionicons
                         name="scale-outline"
                         size={moderateScale(22)}
                         color="#4facfe"
@@ -297,7 +301,7 @@ const CaloriesScreen = () => {
                         { backgroundColor: "#2ecc7115" },
                       ]}
                     >
-                      <Icon
+                      <Ionicons
                         name="barbell-outline"
                         size={moderateScale(22)}
                         color="#2ecc71"
@@ -314,7 +318,7 @@ const CaloriesScreen = () => {
                         { backgroundColor: "#e67e2215" },
                       ]}
                     >
-                      <Icon
+                      <Ionicons
                         name="flame-outline"
                         size={moderateScale(22)}
                         color="#e67e22"
@@ -337,7 +341,7 @@ const CaloriesScreen = () => {
                       { backgroundColor: primaryColor + "20" },
                     ]}
                   >
-                    <Icon
+                    <Ionicons
                       name="restaurant-outline"
                       size={moderateScale(24)}
                       color={primaryColor}
@@ -359,7 +363,7 @@ const CaloriesScreen = () => {
                   colors={["#4facfe", "#00f2fe"]}
                   style={styles.emptyIconGradient}
                 >
-                  <Icon
+                  <Ionicons
                     name="calculator-outline"
                     size={moderateScale(50)}
                     color="#fff"
@@ -381,7 +385,7 @@ const CaloriesScreen = () => {
                   colors={["#4facfe", "#00f2fe"]}
                   style={styles.btnGradient}
                 >
-                  <Icon
+                  <Ionicons
                     name="calculator"
                     size={moderateScale(20)}
                     color="#fff"

@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -14,7 +15,6 @@ import {
 import { BarChart, PieChart } from "react-native-gifted-charts";
 
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -29,7 +29,7 @@ const ProgressScreen = () => {
   });
 
   // No Animation for Tab Switching
-  const changeTab = (tab) => {
+  const changeTab = (tab: string) => {
     setSelectedTab(tab);
   };
 
@@ -151,7 +151,7 @@ const ProgressScreen = () => {
         {/* Calories Card */}
         <View style={styles.gridCard}>
           <View style={[styles.iconCircle, { backgroundColor: "#4facfe15" }]}>
-            <Icon name="flame" size={moderateScale(22)} color="#4facfe" />
+            <Ionicons name="flame" size={moderateScale(22)} color="#4facfe" />
           </View>
           <View>
             <Text style={styles.gridValue}>{stats.calories}</Text>
@@ -163,7 +163,7 @@ const ProgressScreen = () => {
         {/* Water Card */}
         <View style={styles.gridCard}>
           <View style={[styles.iconCircle, { backgroundColor: "#00f2fe15" }]}>
-            <Icon name="water" size={moderateScale(22)} color="#00f2fe" />
+            <Ionicons name="water" size={moderateScale(22)} color="#00f2fe" />
           </View>
           <View>
             <Text style={styles.gridValue}>
@@ -181,11 +181,15 @@ const ProgressScreen = () => {
       <View style={styles.chartCard}>
         <View style={styles.cardHeader}>
           <View style={[styles.iconBox, { backgroundColor: "#4facfe15" }]}>
-            <Icon name="pie-chart" size={moderateScale(20)} color="#4facfe" />
+            <Ionicons
+              name="pie-chart"
+              size={moderateScale(20)}
+              color="#4facfe"
+            />
           </View>
           <Text style={styles.cardTitle}>Daily Breakdown</Text>
           <TouchableOpacity onPress={() => loadStats(true)}>
-            <Icon name="refresh" size={moderateScale(20)} color="#b2bec3" />
+            <Ionicons name="refresh" size={moderateScale(20)} color="#b2bec3" />
           </TouchableOpacity>
         </View>
 
@@ -220,7 +224,7 @@ const ProgressScreen = () => {
               donut
               radius={90}
               innerRadius={74}
-              startAngle={-90}
+              initialAngle={-90}
             />
           </View>
           {/* Inner Ring - Water */}
@@ -230,12 +234,12 @@ const ProgressScreen = () => {
               donut
               radius={60}
               innerRadius={48}
-              startAngle={-90}
+              initialAngle={-90}
             />
           </View>
           {/* Center Text */}
           <View style={{ position: "absolute", alignItems: "center" }}>
-            <Icon name="stats-chart" size={24} color="#bdc3c7" />
+            <Ionicons name="stats-chart" size={24} color="#bdc3c7" />
           </View>
         </View>
         <Text style={styles.chartFooterText}>
@@ -265,8 +269,8 @@ const ProgressScreen = () => {
               { backgroundColor: meal.color + "15" },
             ]}
           >
-            <Icon
-              name={meal.icon}
+            <Ionicons
+              name={meal.icon as any}
               size={moderateScale(20)}
               color={meal.color}
             />
@@ -289,7 +293,7 @@ const ProgressScreen = () => {
       <View style={styles.chartCard}>
         <View style={styles.cardHeader}>
           <View style={[styles.iconBox, { backgroundColor: "#4facfe15" }]}>
-            <Icon
+            <Ionicons
               name="calendar-clear-outline"
               size={moderateScale(20)}
               color="#4facfe"
@@ -399,7 +403,7 @@ const ProgressScreen = () => {
             alignItems: "center",
           }}
         >
-          <Icon name="information-circle" size={20} color="#4facfe" />
+          <Ionicons name="information-circle" size={20} color="#4facfe" />
           <Text
             style={{
               marginLeft: 8,
@@ -430,14 +434,18 @@ const ProgressScreen = () => {
               onPress={() => router.back()}
               style={styles.iconBtn}
             >
-              <Icon name="chevron-back" size={moderateScale(28)} color="#fff" />
+              <Ionicons
+                name="chevron-back"
+                size={moderateScale(28)}
+                color="#fff"
+              />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Progress Tracker</Text>
             <TouchableOpacity
               onPress={() => router.push("/NotificationScreen")}
               style={styles.iconBtn}
             >
-              <Icon
+              <Ionicons
                 name="notifications-outline"
                 size={moderateScale(24)}
                 color="#fff"

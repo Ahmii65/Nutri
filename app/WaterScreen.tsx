@@ -1,11 +1,10 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
-  Animated,
-  Easing,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -15,8 +14,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
+
 const WaterScreen = () => {
   const router = useRouter();
   const [intake, setIntake] = useState(0); // Current glasses
@@ -24,20 +29,18 @@ const WaterScreen = () => {
   const [customGoal, setCustomGoal] = useState(""); // For setting new goal
 
   const glassSize = 250; // ml per glass
-  const progressAnim = useRef(new Animated.Value(0)).current;
+  const progressAnim = useSharedValue(0);
 
   // Calculate percentage
   const percentage = Math.min(intake / goal, 1);
   const displayPercentage = Math.round(percentage * 100);
 
   useEffect(() => {
-    Animated.timing(progressAnim, {
-      toValue: percentage,
+    progressAnim.value = withTiming(percentage, {
       duration: 1000,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
-    }).start();
-  }, [intake, goal, percentage, progressAnim]);
+    });
+  }, [percentage]);
 
   // Load Data
   useEffect(() => {
@@ -100,9 +103,10 @@ const WaterScreen = () => {
   };
 
   // Interpolate height for liquid fill
-  const liquidHeight = progressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0%", "100%"],
+  const liquidStyle = useAnimatedStyle(() => {
+    return {
+      height: `${progressAnim.value * 100}%`,
+    };
   });
 
   return (
@@ -124,14 +128,18 @@ const WaterScreen = () => {
               onPress={() => router.back()}
               style={styles.iconBtn}
             >
-              <Icon name="chevron-back" size={moderateScale(28)} color="#fff" />
+              <Ionicons
+                name="chevron-back"
+                size={moderateScale(28)}
+                color="#fff"
+              />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Water Tracker</Text>
             <TouchableOpacity
               onPress={() => router.push("/NotificationScreen")}
               style={styles.iconBtn}
             >
-              <Icon
+              <Ionicons
                 name="notifications-outline"
                 size={moderateScale(24)}
                 color="#fff"
@@ -151,9 +159,7 @@ const WaterScreen = () => {
             <View style={styles.bottleGlass}>
               {/* Liquid */}
               <View style={styles.liquidContainer}>
-                <Animated.View
-                  style={[styles.liquid, { height: liquidHeight }]}
-                >
+                <Animated.View style={[styles.liquid, liquidStyle]}>
                   <LinearGradient
                     colors={["#4facfe", "#00f2fe"]}
                     style={{ flex: 1 }}
@@ -190,7 +196,11 @@ const WaterScreen = () => {
               style={styles.actionBtnSmall}
               onPress={removeGlass}
             >
-              <Icon name="remove" size={moderateScale(24)} color="#ff6b6b" />
+              <Ionicons
+                name="remove"
+                size={moderateScale(24)}
+                color="#ff6b6b"
+              />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -202,13 +212,13 @@ const WaterScreen = () => {
                 colors={["#4facfe", "#00f2fe"]}
                 style={styles.addGlassGradient}
               >
-                <Icon name="water" size={moderateScale(30)} color="#fff" />
+                <Ionicons name="water" size={moderateScale(30)} color="#fff" />
                 <Text style={styles.addGlassText}>+250ml</Text>
               </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionBtnSmall} onPress={addGlass}>
-              <Icon name="add" size={moderateScale(24)} color="#4facfe" />
+              <Ionicons name="add" size={moderateScale(24)} color="#4facfe" />
             </TouchableOpacity>
           </View>
         </View>

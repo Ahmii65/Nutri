@@ -1,18 +1,14 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import Icon from "react-native-vector-icons/Ionicons";
 const index = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [bmi, setBmi] = useState("N/A");
   const [bmiCategory, setBmiCategory] = useState("Calculate your BMI");
   const [username, setUsername] = useState("User");
@@ -44,7 +40,7 @@ const index = () => {
               const profile = JSON.parse(profileStr);
               if (profile.firstName) {
                 currentName = profile.firstName;
-                await AsyncStorage.setItem("user_name", currentName);
+                await AsyncStorage.setItem("user_name", currentName || "");
               }
             }
           }
@@ -60,26 +56,34 @@ const index = () => {
   return (
     <View style={styles.mainContainer}>
       {/* <StatusBar barStyle="dark-content" backgroundColor="#FFF" /> */}
-      <ScrollView
-        style={styles.container}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainer}
-      >
+      <View style={[styles.container, styles.contentContainer]}>
         {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.welcomeText}>Welcome back!</Text>
-            <Text style={styles.username}>{username}</Text>
+        <View style={[styles.header, { marginTop: insets.top + 10 }]}>
+          <View style={styles.headerLeft}>
+            <View style={styles.avatarContainer}>
+              <LinearGradient
+                colors={["#667eea", "#764ba2"]}
+                style={styles.avatarGradient}
+              >
+                <Text style={styles.avatarText}>
+                  {username ? username.charAt(0).toUpperCase() : "U"}
+                </Text>
+              </LinearGradient>
+            </View>
+            <View>
+              <Text style={styles.welcomeText}>Welcome back,</Text>
+              <Text style={styles.username}>{username}</Text>
+            </View>
           </View>
           <TouchableOpacity
-            style={styles.notificationIcon}
+            style={styles.notificationBtn}
             onPress={() => router.push("/NotificationScreen")}
             activeOpacity={0.8}
           >
-            <Icon
-              name="notifications"
-              size={moderateScale(28)}
-              color="#f3d007"
+            <Ionicons
+              name="notifications-outline"
+              size={moderateScale(24)}
+              color="#2d3436"
             />
             <View style={styles.activeDot} />
           </TouchableOpacity>
@@ -127,7 +131,11 @@ const index = () => {
               style={styles.statusGradient}
             >
               <View style={styles.iconCircle}>
-                <Icon name="water" size={moderateScale(24)} color="#317fc4ff" />
+                <Ionicons
+                  name="water"
+                  size={moderateScale(24)}
+                  color="#317fc4ff"
+                />
               </View>
               <Text style={styles.statusTitleLight}>Water</Text>
               <Text style={styles.statusValueLight}>
@@ -148,7 +156,11 @@ const index = () => {
               style={styles.statusGradient}
             >
               <View style={styles.iconCircle}>
-                <Icon name="flame" size={moderateScale(24)} color="#e46f73ff" />
+                <Ionicons
+                  name="flame"
+                  size={moderateScale(24)}
+                  color="#e46f73ff"
+                />
               </View>
               <Text style={styles.statusTitleLight}>Calories</Text>
               <Text style={styles.statusValueLight}>{calories}</Text>
@@ -167,7 +179,7 @@ const index = () => {
               style={styles.statusGradient}
             >
               <View style={styles.iconCircle}>
-                <Icon
+                <Ionicons
                   name="restaurant"
                   size={moderateScale(22)}
                   color="#038970ff"
@@ -214,7 +226,11 @@ const index = () => {
             style={styles.mealCard}
           >
             <View style={styles.mealIconPlaceholder}>
-              <Icon name="fast-food" size={moderateScale(24)} color="#fff" />
+              <Ionicons
+                name="fast-food"
+                size={moderateScale(24)}
+                color="#fff"
+              />
             </View>
             <View style={styles.mealInfo}>
               <Text style={styles.mealName}>Breakfast</Text>
@@ -228,14 +244,14 @@ const index = () => {
                 />
               </View>
             </View>
-            <Icon
+            <Ionicons
               name="chevron-forward"
               size={moderateScale(20)}
               color="#ccc"
             />
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -258,39 +274,68 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: verticalScale(40), // Adjusted for proper spacing
     alignItems: "center",
     marginBottom: verticalScale(20),
   },
-  welcomeText: {
-    fontSize: moderateScale(14),
-    color: "#ADA4A5",
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  username: {
-    fontSize: moderateScale(20),
-    fontWeight: "700",
-    color: "#3e3a3bff",
-    marginTop: verticalScale(2),
+  avatarContainer: {
+    marginRight: scale(12),
+    shadowColor: "#667eea",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  notificationIcon: {
-    width: moderateScale(40),
-    height: moderateScale(40),
-    backgroundColor: "#F7F8F8",
-    borderRadius: moderateScale(8),
+  avatarGradient: {
+    width: moderateScale(50),
+    height: moderateScale(50),
+    borderRadius: moderateScale(25),
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
+  },
+  avatarText: {
+    color: "#fff",
+    fontSize: moderateScale(20),
+    fontWeight: "bold",
+  },
+  welcomeText: {
+    fontSize: moderateScale(14),
+    color: "#636e72",
+    marginBottom: verticalScale(2),
+  },
+  username: {
+    fontSize: moderateScale(18),
+    fontWeight: "bold",
+    color: "#2d3436",
+  },
+  notificationBtn: {
+    width: moderateScale(45),
+    height: moderateScale(45),
+    backgroundColor: "#fff",
+    borderRadius: moderateScale(15),
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#f1f2f6",
   },
   activeDot: {
     position: "absolute",
-    top: moderateScale(8),
-    right: moderateScale(8),
+    top: moderateScale(10),
+    right: moderateScale(10),
     width: moderateScale(8),
     height: moderateScale(8),
     borderRadius: moderateScale(4),
-    backgroundColor: "red",
-    borderWidth: 1,
-    borderColor: "#F7F8F8",
+    backgroundColor: "#ff7675",
+    borderWidth: 1.5,
+    borderColor: "#fff",
   },
   banner: {
     borderRadius: moderateScale(22),
