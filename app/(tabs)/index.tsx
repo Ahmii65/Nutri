@@ -9,14 +9,23 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 
+import { useAuth } from "@/context/AuthContext";
+
 const index = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const [bmi, setBmi] = useState("N/A");
   const [bmiCategory, setBmiCategory] = useState("Calculate your BMI");
-  const [username, setUsername] = useState("User");
+  // const [username, setUsername] = useState("User"); // Derived from user object now
   const [waterIntake, setWaterIntake] = useState(0);
   const [calories, setCalories] = useState(0);
+
+  // Derive username from AuthContext
+  const username =
+    user && user.firstName
+      ? `${user.firstName} ${user.lastName || ""}`.trim()
+      : "User";
 
   useFocusEffect(
     useCallback(() => {
@@ -28,7 +37,7 @@ const index = () => {
           const storedWater = await AsyncStorage.getItem("water_intake");
           const storedCalories =
             await AsyncStorage.getItem("calories_consumed");
-          let currentName = await AsyncStorage.getItem("user_name");
+          // let currentName = await AsyncStorage.getItem("user_name"); // No longer needed for name
 
           if (storedBmi) setBmi(storedBmi);
           if (storedCategory)
@@ -36,19 +45,7 @@ const index = () => {
           if (storedWater) setWaterIntake(parseInt(storedWater, 10));
           if (storedCalories) setCalories(parseInt(storedCalories, 10));
 
-          // If name is missing or default 'User', check profile
-          if (!currentName || currentName === "User") {
-            const profileStr = await AsyncStorage.getItem("user_profile");
-            if (profileStr) {
-              const profile = JSON.parse(profileStr);
-              if (profile.firstName) {
-                currentName = profile.firstName;
-                await AsyncStorage.setItem("user_name", currentName || "");
-              }
-            }
-          }
-
-          if (currentName) setUsername(currentName);
+          // Removed legacy name loading logic in favor of useAuth
         } catch (e) {
           console.log("Failed to load Dashboard data", e);
         }

@@ -42,17 +42,15 @@ const Registration = () => {
     }
 
     setLoading(true);
+    setLoading(true);
     try {
-      // Create account first
-      await signUp(email, password);
-
-      // Navigate to next step to complete profile
-      router.replace({
+      // Navigate to next step to complete profile (pass password too)
+      router.push({
         pathname: "/Register2",
-        params: { firstName: fName, lastName: sName, email },
+        params: { firstName: fName, lastName: sName, email, password },
       });
     } catch (error: any) {
-      alert(error.message || "Registration failed");
+      alert(error.message || "Navigation failed");
     } finally {
       setLoading(false);
     }

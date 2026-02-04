@@ -45,14 +45,14 @@ const Register2 = () => {
   const [age, setAge] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
-  const { saveUserProfile, user } = useAuth();
+  const { register } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const genderTextColor = useMemo(() => {
     return gender ? "#1D1617" : "#ADA4A5";
   }, [gender]);
 
-  const { firstName, lastName, email } = params || {};
+  const { firstName, lastName, email, password } = params || {};
 
   const handleNext = async () => {
     if (!gender || !age || !height || !weight) {
@@ -60,17 +60,11 @@ const Register2 = () => {
       return;
     }
 
-    if (!user || !user.uid) {
-      Alert.alert("Error", "User not found. Please log in again.");
-      return;
-    }
-
     setLoading(true);
     try {
-      await saveUserProfile(user.uid, {
-        firstName: firstName as string,
-        lastName: lastName as string,
-        email: email as string,
+      await register(email as string, password as string, {
+        firstName: (firstName as string) || "",
+        lastName: (lastName as string) || "",
         gender,
         age,
         height,
@@ -78,11 +72,22 @@ const Register2 = () => {
       });
       router.replace("/(tabs)");
     } catch (error: any) {
-      Alert.alert("Save Failed", error.message || getErrorMessage(error));
+      Alert.alert(
+        "Registration Failed",
+        error.message || getErrorMessage(error),
+      );
     } finally {
       setLoading(false);
     }
   };
+
+  // RETHINKING: I cannot call 'saveUserProfile' because I don't have a UID yet!
+  // I need to use the 'register' function from AuthContext if it exposes it, OR use signUp then saveUserProfile.
+  // The user rule said "account should be made with data setting into firestore".
+  // AuthContext shows: const register = async (email, password, additionalData) ...
+  // So I should use that.
+
+  // Real implementation below:
 
   return (
     <View style={styles.container}>

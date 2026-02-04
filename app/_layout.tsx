@@ -31,8 +31,8 @@ const StackLayout = () => {
         <Stack.Screen name="index" />
         <Stack.Screen name="Login" />
         <Stack.Screen name="Registration" />
-        <Stack.Screen name="Register2" />
         <Stack.Screen name="ForgotPassword" />
+        <Stack.Screen name="Register2" />
       </Stack.Protected>
 
       {/* Private Routes: Only accessible when logged in */}

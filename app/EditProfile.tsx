@@ -3,8 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { where } from "firebase/firestore";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -16,9 +15,8 @@ import {
   View,
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import useFetch from "../hooks/useFetch";
 import { UserService } from "../services/userService";
-import { InputFieldProps, ProfileState, UserProfile } from "../types";
+import { InputFieldProps, ProfileState } from "../types";
 
 const InputField = ({
   label,
@@ -61,21 +59,14 @@ const EditProfile = () => {
     goals: [],
   });
 
-  const constraints = useMemo(
-    () => (user?.uid ? [where("uid", "==", user.uid)] : null),
-    [user?.uid],
-  );
-
-  const { data: usersData } = useFetch<UserProfile>("users", constraints);
-
+  // Load data directly from authenticated user object
   useEffect(() => {
-    if (usersData && usersData.length > 0) {
-      const userData = usersData[0];
+    if (user) {
       let feet = "";
       let inches = "";
 
-      if (userData.height) {
-        const heightVal = Number(userData.height);
+      if (user.height) {
+        const heightVal = Number(user.height);
         const totalInches = heightVal / 2.54;
         feet = Math.floor(totalInches / 12).toString();
         inches = Math.round(totalInches % 12).toString();
@@ -84,20 +75,20 @@ const EditProfile = () => {
       setProfile((prev) => ({
         ...prev,
         fullName:
-          userData.firstName && userData.lastName
-            ? `${userData.firstName} ${userData.lastName}`
-            : userData.firstName || prev.fullName,
-        age: userData.age ? userData.age.toString() : prev.age,
-        weight: userData.weight ? userData.weight.toString() : prev.weight,
-        gender: userData.gender || prev.gender,
+          user.firstName && user.lastName
+            ? `${user.firstName} ${user.lastName}`
+            : user.firstName || prev.fullName,
+        age: user.age ? user.age.toString() : prev.age,
+        weight: user.weight ? user.weight.toString() : prev.weight,
+        gender: user.gender || prev.gender,
         heightFeet: feet || prev.heightFeet,
         heightInches: inches || prev.heightInches,
-        username: userData.username || prev.username,
-        bio: userData.bio || prev.bio,
-        goals: userData.goals || prev.goals,
+        username: user.username || prev.username,
+        bio: user.bio || prev.bio,
+        goals: user.goals || prev.goals,
       }));
     }
-  }, [usersData]);
+  }, [user]);
 
   const goalOptions = [
     { label: "Gain Weight", icon: "weight-lifter" },
