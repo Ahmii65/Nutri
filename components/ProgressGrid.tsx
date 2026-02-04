@@ -1,14 +1,8 @@
+import { ProgressGridProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-
-interface ProgressGridProps {
-  calories: number;
-  calorieGoal: number;
-  water: number;
-  waterGoal: number;
-}
 
 const ProgressGrid = ({
   calories,

@@ -1,16 +1,9 @@
+import { RecipeCardProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-
-interface RecipeCardProps {
-  recipe: any;
-  single?: boolean;
-  onPress?: () => void;
-  isFavorite?: boolean;
-  onToggleFavorite?: (id: string) => void;
-}
 
 const RecipeCard = ({
   recipe,

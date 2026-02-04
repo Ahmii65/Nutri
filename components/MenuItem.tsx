@@ -1,16 +1,8 @@
+import { MenuItemProps } from "@/types";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-
-interface MenuItemProps {
-  icon: any;
-  label: string;
-  onPress: () => void;
-  color: string;
-  isDestructive?: boolean;
-  hideBorder?: boolean;
-}
 
 const MenuItem = ({
   icon,

@@ -1,18 +1,9 @@
+import { DailyChartProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-
-interface DailyChartProps {
-  stats: {
-    calories: number;
-    calorieGoal: number;
-    water: number;
-    waterGoal: number;
-  };
-  onRefresh: () => void;
-}
 
 const DailyChart = ({ stats, onRefresh }: DailyChartProps) => {
   const calorieTarget = stats.calorieGoal || 2000;

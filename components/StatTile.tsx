@@ -1,16 +1,8 @@
+import { StatTileProps } from "@/types";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-
-interface StatTileProps {
-  label: string;
-  value: string;
-  unit?: string;
-  icon: any;
-  color: string;
-  bg: string;
-}
 
 const StatTile = ({ label, value, unit, icon, color, bg }: StatTileProps) => (
   <View style={[styles.statTile, { backgroundColor: bg }]}>

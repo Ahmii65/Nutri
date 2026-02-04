@@ -1,8 +1,12 @@
+import CustomPicker from "@/components/CustomPicker";
+import { useAuth } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { where } from "firebase/firestore";
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   ScrollView,
   StyleSheet,
@@ -12,11 +16,6 @@ import {
   View,
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-
-import CustomPicker from "@/components/CustomPicker";
-import { useAuth } from "@/context/AuthContext";
-import { where } from "firebase/firestore";
-import { ActivityIndicator } from "react-native";
 import useFetch from "../hooks/useFetch";
 import { UserService } from "../services/userService";
 import { InputFieldProps, ProfileState, UserProfile } from "../types";

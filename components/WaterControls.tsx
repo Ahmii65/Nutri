@@ -1,3 +1,4 @@
+import { WaterControlsProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -9,15 +10,6 @@ import {
   View,
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-
-interface WaterControlsProps {
-  onAdd: () => void;
-  onRemove: () => void;
-  customGoal: string;
-  setCustomGoal: (val: string) => void;
-  onSetNewGoal: () => void;
-  onReset: () => void;
-}
 
 const WaterControls = ({
   onAdd,

@@ -1,24 +1,9 @@
+import { OnboardingItemProps } from "@/types";
 import React from "react";
-import {
-  Dimensions,
-  Image,
-  ImageSourcePropType,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 
 const { width } = Dimensions.get("window");
-
-interface OnboardingItemProps {
-  item: {
-    id: string;
-    title: string;
-    description: string;
-    image: ImageSourcePropType;
-  };
-}
 
 const OnboardingItem = ({ item }: OnboardingItemProps) => {
   return (

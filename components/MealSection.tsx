@@ -3,14 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-import { MealLogEntry } from "../types";
-
-interface MealSectionProps {
-  title: string;
-  iconName: string;
-  meals: MealLogEntry[];
-  onAddPress: () => void;
-}
+import { MealLogEntry, MealSectionProps } from "../types";
 
 const MealSection = ({
   title,

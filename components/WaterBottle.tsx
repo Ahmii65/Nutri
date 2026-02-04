@@ -1,3 +1,4 @@
+import { WaterBottleProps } from "@/types";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -9,11 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 
-interface WaterBottleProps {
-  intake: number;
-  goal: number;
-  glassSize: number;
-}
+
 
 const WaterBottle = ({ intake, goal, glassSize }: WaterBottleProps) => {
   const progressAnim = useSharedValue(0);

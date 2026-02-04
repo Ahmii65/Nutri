@@ -1,3 +1,4 @@
+import { RecipeDetailModalProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -12,15 +13,6 @@ import {
   View,
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-
-interface RecipeDetailModalProps {
-  recipe: any;
-  visible: boolean;
-  onClose: () => void;
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
-  onShare: (recipe: any) => void;
-}
 
 const RecipeDetailModal = ({
   recipe,

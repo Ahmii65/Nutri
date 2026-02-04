@@ -1,3 +1,4 @@
+import { CustomPickerProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
@@ -10,13 +11,6 @@ import {
   View,
 } from "react-native";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
-
-interface CustomPickerProps {
-  selectedValue: string;
-  onValueChange: (val: string) => void;
-  options: { label: string; value: string }[];
-  placeholder: string;
-}
 
 const CustomPicker = ({
   selectedValue,
@@ -148,8 +142,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: verticalScale(15),
-    borderBottomWidth: 1,
-    borderBottomColor: "#f1f2f6",
   },
   modalItemSelected: {
     backgroundColor: "#f0fbff",

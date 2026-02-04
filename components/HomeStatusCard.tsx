@@ -1,18 +1,9 @@
+import { HomeStatusCardProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { moderateScale, verticalScale } from "react-native-size-matters";
-
-interface HomeStatusCardProps {
-  title: string;
-  value?: string | number;
-  label?: string;
-  icon: any;
-  iconColor: string;
-  gradientColors: [string, string];
-  onPress: () => void;
-}
 
 const HomeStatusCard = ({
   title,

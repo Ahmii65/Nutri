@@ -1,19 +1,14 @@
+import { OnboardingPaginationProps } from "@/types";
 import React from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
-  SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 
 const { width } = Dimensions.get("window");
-
-interface OnboardingPaginationProps {
-  data: any[];
-  scrollX: SharedValue<number>;
-}
 
 const OnboardingPagination = ({ data, scrollX }: OnboardingPaginationProps) => {
   return (

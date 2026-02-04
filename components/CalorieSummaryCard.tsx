@@ -1,13 +1,8 @@
+import { CalorieSummaryCardProps } from "@/types";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { moderateScale, verticalScale } from "react-native-size-matters";
-
-interface CalorieSummaryCardProps {
-  totalCalories: number;
-  dailyGoal: number;
-  goalLabel: string;
-}
 
 const CalorieSummaryCard = ({
   totalCalories,

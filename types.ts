@@ -90,7 +90,8 @@ export interface NotificationItem {
   color: string;
 }
 
-import { KeyboardTypeOptions } from "react-native";
+import { ImageSourcePropType, KeyboardTypeOptions } from "react-native";
+import { SharedValue } from "react-native-reanimated";
 
 export interface InputFieldProps {
   label: string;
@@ -137,4 +138,121 @@ export interface ProfileState {
   age: string;
   gender: string;
   goals: string[];
+}
+
+export interface CustomPickerProps {
+  selectedValue: string;
+  onValueChange: (val: string) => void;
+  options: { label: string; value: string }[];
+  placeholder: string;
+}
+
+export interface CalorieSummaryCardProps {
+  totalCalories: number;
+  dailyGoal: number;
+  goalLabel: string;
+}
+
+export interface DailyChartProps {
+  stats: {
+    calories: number;
+    calorieGoal: number;
+    water: number;
+    waterGoal: number;
+  };
+  onRefresh: () => void;
+}
+
+export interface HomeStatusCardProps {
+  title: string;
+  value?: string | number;
+  label?: string;
+  icon: any;
+  iconColor: string;
+  gradientColors: [string, string];
+  onPress: () => void;
+}
+
+export interface MealCardProps {
+  name: string;
+  description: string;
+  onPress: () => void;
+}
+
+export interface MealSectionProps {
+  title: string;
+  iconName: string;
+  meals: MealLogEntry[];
+  onAddPress: () => void;
+}
+
+export interface MenuItemProps {
+  icon: any;
+  label: string;
+  onPress: () => void;
+  color: string;
+  isDestructive?: boolean;
+  hideBorder?: boolean;
+}
+
+export interface OnboardingItemProps {
+  item: {
+    id: string;
+    title: string;
+    description: string;
+    image: ImageSourcePropType;
+  };
+}
+
+export interface ProgressGridProps {
+  calories: number;
+  calorieGoal: number;
+  water: number;
+  waterGoal: number;
+}
+
+export interface RecipeCardProps {
+  recipe: any;
+  single?: boolean;
+  onPress?: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
+}
+
+export interface OnboardingPaginationProps {
+  data: any[];
+  scrollX: SharedValue<number>;
+}
+
+export interface RecipeDetailModalProps {
+  recipe: any;
+  visible: boolean;
+  onClose: () => void;
+  isFavorite: boolean;
+  onToggleFavorite: (id: string) => void;
+  onShare: (recipe: any) => void;
+}
+
+export interface StatTileProps {
+  label: string;
+  value: string;
+  unit?: string;
+  icon: any;
+  color: string;
+  bg: string;
+}
+
+export interface WaterBottleProps {
+  intake: number;
+  goal: number;
+  glassSize: number;
+}
+
+export interface WaterControlsProps {
+  onAdd: () => void;
+  onRemove: () => void;
+  customGoal: string;
+  setCustomGoal: (val: string) => void;
+  onSetNewGoal: () => void;
+  onReset: () => void;
 }
